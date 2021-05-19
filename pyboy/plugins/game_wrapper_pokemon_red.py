@@ -31,7 +31,7 @@ ADDR_BATTLE_BIT = 0xD057
 class GameWrapperPokemonRed(PyBoyGameWrapper):
     """
     """
-    cartridge_title = "Pokemon Red"
+    cartridge_title = "POKEMON RED"
 
     def __init__(self, *args, **kwargs):
         # I guess it should be full of unseens...
@@ -44,13 +44,13 @@ class GameWrapperPokemonRed(PyBoyGameWrapper):
 
     def post_tick(self):
         # Setting bit after each tick
-        self.isBattle = self.pyboy.get_memory_value(ADDR_BATTLE_BIT)
+        self.isBattling = self.pyboy.get_memory_value(ADDR_BATTLE_BIT)
 
     def start_game(self, timer_div=None):
         """
         Starts the game
         """
-        PyBoyGameWrapper.start_game(self)
+        PyBoyGameWrapper.start_game(self, timer_div=timer_div)
 
     # def reset_game(self, timer_div=None):
     #     """
