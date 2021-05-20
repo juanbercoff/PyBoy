@@ -24,9 +24,19 @@ try:
 except ImportError:
     cythonmode = False
 
-# D057 is set to either 0 or 1 by the game itself, it's always 1 during battle and 0 outside of battle
+# D057 - Type of battle
 ADDR_BATTLE_BIT = 0xD057
+# D05A - Battle Type (Normal battle, Safari Zone, Old Man battle...)
+# Pokedex Own Beginning
+ADDR_POKEDEX_OWN = 0xD2F7
+# Pokedex Seen Beginning
+ADDR_POKEDEX_SEEN= 0xD30A
 
+def load_mem_from(obj, mem, nbytes):
+    arr = []
+    for i in range(0, nbytes):
+        arr[i] = obj.get_memory_value(mem + i)
+    return arr
 
 class GameWrapperPokemonRed(PyBoyGameWrapper):
     """
@@ -42,9 +52,23 @@ class GameWrapperPokemonRed(PyBoyGameWrapper):
         self.isBattling = False
         """Boolean indicating if we are currently battling"""
 
+        for i in range(0,19):
+            self.pokedex_own[i] = 0
+            self.pokedex_seen[i] = 0
+
+    def load_pokedex(self):
+        """
+        Load pokedex have and seen
+        """
+        for i in range(0,19):
+            self.pokedex_own[i] = self.pyboy.get_memory_value(ADDR_POKEDEX_OWN + i)
+            self.pokedex_seen[i] = self.pyboy.get_memory_value(ADDR_POKEDEX_SEEN + i)
+
     def post_tick(self):
-        # Setting bit after each tick
-        self.isBattling = self.pyboy.get_memory_value(ADDR_BATTLE_BIT)
+        # If there is a change in the battle status
+        if self.isBattling != self.pyboy.get_memory_value(ADDR_BATTLE_BIT):
+            self.isBattling = self.pyboy.get_memory_value(ADDR_BATTLE_BIT)
+            self.load_pokedex()
 
     def start_game(self, timer_div=None):
         """
